@@ -1,5 +1,11 @@
 export {};
 
+interface ShieldSnapshot {
+  currentCharge: number;
+  capacity: number;
+  missingCharge: number;
+}
+
 const canvas = document.querySelector<HTMLCanvasElement>("#counter-canvas")!;
 const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>(
@@ -13,6 +19,13 @@ let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
 
+function snapshotHelper(): ShieldSnapshot {
+  return {
+    currentCharge: count,
+    capacity: 10,
+    missingCharge: 10 - count,
+  };
+}
 function drawMeter() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < 10; i++) {
@@ -25,15 +38,16 @@ function drawMeter() {
   readout.textContent = `Shield charge: ${count} / 10`;
 }
 
-function updateStats() {
+function updateStats(snapshot: ShieldSnapshot) {
   panelUpdates++;
   diagnostic.textContent = `Inspector deliveries: ${panelUpdates}`;
-  renderStats();
+  renderStats(snapshot);
 }
 
-function renderStats() {
+function renderStats(snapshot: ShieldSnapshot) {
   if (!panel) return;
-  panel.textContent = `Shield charge: ${count} · Missing charge: ${10 - count}`;
+  panel.textContent =
+    `Shield charge: ${snapshot.currentCharge} · Missing charge: ${snapshot.missingCharge}`;
 }
 
 function setCount(next: number) {
@@ -41,7 +55,8 @@ function setCount(next: number) {
   if (bounded === count) return;
   count = bounded;
   drawMeter();
-  if (panel) updateStats();
+  const currentSnapshot = snapshotHelper();
+  if (panel) updateStats(currentSnapshot);
 }
 
 document.querySelector<HTMLButtonElement>("#counter-less")!.onclick = () => {
@@ -57,7 +72,7 @@ document.querySelector<HTMLButtonElement>("#counter-open")!.onclick = () => {
   if (panel) return;
   panel = document.createElement("p");
   host.append(panel);
-  renderStats();
+  renderStats(snapshotHelper());
 };
 document.querySelector<HTMLButtonElement>("#counter-close")!.onclick = () => {
   if (!panel) return;
