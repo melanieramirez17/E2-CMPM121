@@ -7,6 +7,7 @@ const readout = document.querySelector<HTMLParagraphElement>(
 )!;
 let n = 2;
 
+// adding a comment for github actions test
 function u() {
   const p = n * 3;
   const c = 6;
