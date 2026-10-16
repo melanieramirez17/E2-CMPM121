@@ -18,6 +18,7 @@ const diagnostic = document.querySelector<HTMLParagraphElement>(
 let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
+const events = new EventTarget();
 
 function snapshotHelper(): ShieldSnapshot {
   return {
@@ -54,9 +55,9 @@ function setCount(next: number) {
   const bounded = Math.max(0, Math.min(10, next));
   if (bounded === count) return;
   count = bounded;
-  drawMeter();
   const currentSnapshot = snapshotHelper();
   if (panel) updateStats(currentSnapshot);
+  events.dispatchEvent(new Event("shieldChanged"));
 }
 
 document.querySelector<HTMLButtonElement>("#counter-less")!.onclick = () => {
@@ -79,4 +80,7 @@ document.querySelector<HTMLButtonElement>("#counter-close")!.onclick = () => {
   panel.remove();
   panel = null;
 };
+events.addEventListener("shieldChanged", () => {
+  drawMeter();
+});
 drawMeter();
