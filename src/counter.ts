@@ -51,12 +51,14 @@ function renderStats(snapshot: ShieldSnapshot) {
     `Shield charge: ${snapshot.currentCharge} · Missing charge: ${snapshot.missingCharge}`;
 }
 
+function shieldEvent() {
+  const snapshot = snapshotHelper();
+  updateStats(snapshot);
+}
 function setCount(next: number) {
   const bounded = Math.max(0, Math.min(10, next));
   if (bounded === count) return;
   count = bounded;
-  const currentSnapshot = snapshotHelper();
-  if (panel) updateStats(currentSnapshot);
   events.dispatchEvent(new Event("shieldChanged"));
 }
 
@@ -74,11 +76,13 @@ document.querySelector<HTMLButtonElement>("#counter-open")!.onclick = () => {
   panel = document.createElement("p");
   host.append(panel);
   renderStats(snapshotHelper());
+  events.addEventListener("shieldChanged", shieldEvent);
 };
 document.querySelector<HTMLButtonElement>("#counter-close")!.onclick = () => {
   if (!panel) return;
   panel.remove();
   panel = null;
+  events.removeEventListener("shieldChanged", shieldEvent);
 };
 events.addEventListener("shieldChanged", () => {
   drawMeter();
