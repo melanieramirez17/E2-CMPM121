@@ -7,6 +7,12 @@ interface ShiftReport {
   balance: number;
 }
 
+interface RowDisplay {
+  text: string;
+  color: string;
+  value: number;
+}
+
 const canvas = document.querySelector<HTMLCanvasElement>("#allocation-canvas")!;
 const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>(
@@ -38,13 +44,22 @@ function displayCanvas(report: ShiftReport) {
   ctx.fillStyle = "#233e43";
   ctx.font = "14px system-ui";
   ctx.fillText(`Producers: ${report.currentProducers} / 6`, 18, 76);
-  ctx.fillText(`Production: ${report.productionRate}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, report.productionRate * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${report.consumptionRate}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, report.consumptionRate * 14, 20);
+  const canvasArray: RowDisplay[] = [{
+    text: "Production: ",
+    color: "#27766b",
+    value: report.productionRate,
+  }, {
+    text: "Consumption: ",
+    color: "#a44d23",
+    value: report.consumptionRate,
+  }];
+  for (let j = 0; j < canvasArray.length; j++) {
+    const row = canvasArray[j];
+    ctx.fillStyle = "#233e43";
+    ctx.fillText(`${row.text}${row.value}`, 18, 102 + j * 52);
+    ctx.fillStyle = row.color;
+    ctx.fillRect(18, 110 + j * 52, row.value * 14, 20);
+  }
 }
 
 function displayReadout(report: ShiftReport) {
